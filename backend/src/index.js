@@ -4,17 +4,26 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT;
 
-// Middleware to parse JSON bodies
-// app.use(express.json());
+app.use(express.json());
 
-// Test route
-// app.get("/api/v1", (req, res) => {
-//   res.json({ message: "Welcome to the REST API!" });
-// });
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+const userRoutes = require("./routes/userRoutes");
+app.use("/api/users", userRoutes);
+
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Endpoint ${req.originalUrl} tidak ditemukan di server ini!`,
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Terjadi kesalahan pada server!",
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server berjalan di http://localhost:${PORT}`);
 });
